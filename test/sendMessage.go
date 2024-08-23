@@ -7,25 +7,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	failure, err := checkRaidStatus()
+	err := sendMessage("Testing", "Testing send message function.")
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	if failure {
-		err := sendMessage("RAID Failure Alert", "A failure was detected in the RAID array.")
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		fmt.Println("RAID status is normal.")
 	}
 }
 
@@ -86,21 +75,4 @@ func sendMessage(subject, body string) error {
 		}
 	}
 	return nil
-}
-
-func checkRaidStatus() (bool, error) {
-	cmd := exec.Command("mdadm", "--detail", "/dev/md0")
-	output, err := cmd.Output()
-	if err != nil {
-		//fmt.Println("Failed to execute command:", err)
-		return false, err
-	}
-
-	// Check for RAID failure status in the output
-	if strings.Contains(string(output), "failed") {
-		//fmt.Println("RAID failure detected!")
-		return true, nil
-	}
-
-	return false, nil
 }
